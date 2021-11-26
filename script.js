@@ -1,25 +1,49 @@
-const inputCep = document.querySelector('#cep')
-const btn = document.querySelector('input[type=button]')
-const resultCep = document.querySelector('.result')
+const inputCep = document.querySelector("#cep");
+const btn = document.querySelector("input[type=button]");
+const resultCep = document.querySelector(".result");
 
-btn.addEventListener('click' , handleClick);
+btn.addEventListener("click", handleClick);
+inputCep.addEventListener("keydown", (e) => {
+  if (e.key == "Enter") {
+    e.preventDefault();
+    zipCodeSearch(inputCep.value);
+    reset();
+  }
+});
 
-function handleClick(e){
-    // e.preventDefault();
-    buscaCep(inputCep.value);
+function handleClick() {
+  zipCodeSearch(inputCep.value);
+  reset();
 }
 
-function buscaCep(cep){
-    fetch(`https://viacep.com.br/ws/${cep}/json/`)
-    .then(response => response.json())
-    .then(responseText => {
-        // console.log(responseText)
-        resultCep.innerHTML = 
-            '<p> Logradouro: ' + responseText.logradouro +'</p>' +
-            '<p> Bairro: ' + responseText.bairro +'</p>' +
-            '<p> Cidade: ' + responseText.localidade +'</p>' +
-            '<p> DDD: ' + responseText.ddd +'</p>' +
-            '<p> UF: ' + responseText.uf +'</p>' 
-    })
+function reset() {
+  inputCep.focus();
+  inputCep.value = "";
 }
 
+async function zipCodeSearch(cep) {
+  try {
+    const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+    const responseJson = await response.json();
+    resultCep.innerHTML =
+      "<p> Logradouro: " +
+      responseJson.logradouro +
+      "</p>" +
+      "<p> Bairro: " +
+      responseJson.bairro +
+      "</p>" +
+      "<p> Cidade: " +
+      responseJson.localidade +
+      "</p>" +
+      "<p> DDD: " +
+      responseJson.ddd +
+      "</p>" +
+      "<p> UF: " +
+      responseJson.uf +
+      "</p>";
+  } catch (e) {
+    const erro = new Error(e);
+    console.log(erro);
+    resultCep.innerHTML = "<p> CEP não identificado, verifique e tente novamente. </p>";
+  }
+}
